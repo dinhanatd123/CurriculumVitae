@@ -1,0 +1,182 @@
+import type { CvState } from '../types/cv';
+
+export const SAMPLE_AVATAR_URL = '/src/assets/images/sample_cv_avatar_1795430849384.jpg';
+
+export function createSampleCvState(): CvState {
+  return {
+    version: 1,
+    settings: {
+      template: 'modern',
+      primaryColor: '#1E3A5F',
+      fontFamily: 'be-vietnam',
+      density: 'standard',
+      language: 'vi',
+      skillDisplayMode: 'tags',
+    },
+    data: {
+      personal: {
+        fullName: 'Nguyễn Minh Khôi',
+        jobTitle: 'Senior Frontend Engineer',
+        phone: '0912 845 620',
+        email: 'minhkhoi.nguyen@email.vn',
+        address: 'Quận 3, TP. Hồ Chí Minh',
+        dateOfBirth: '14/08/1997',
+        linkedin: 'linkedin.com/in/nguyenminhkhoi-dev',
+        github: 'github.com/minhkhoi-fe',
+        portfolio: 'minhkhoi.dev',
+        avatarUrl: SAMPLE_AVATAR_URL,
+        showAvatar: true,
+        avatarShape: 'circle',
+      },
+      summary:
+        'Kỹ sư Frontend với hơn 5 năm kinh nghiệm xây dựng sản phẩm web quy mô lớn bằng React, TypeScript và kiến trúc Design System. Thế mạnh về tối ưu hiệu năng hiển thị (Core Web Vitals), trải nghiệm người dùng mượt mà và dẫn dắt đội ngũ kỹ thuật chuyển đổi hệ thống cũ sang kiến trúc hiện đại, dễ mở rộng.',
+      experience: [
+        {
+          id: 'exp-1',
+          company: 'Công ty Công nghệ FinCore Việt Nam',
+          position: 'Senior Frontend Engineer',
+          startDate: '03/2023',
+          endDate: '',
+          isCurrent: true,
+          location: 'TP. Hồ Chí Minh',
+          bullets: [
+            'Thiết kế và triển khai thư viện UI Design System gồm 48 component chuẩn WCAG AA, rút ngắn 35% thời gian phát triển tính năng mới cho 4 nhóm sản phẩm.',
+            'Tối ưu hóa tốc độ tải trang (LCP giảm từ 3.8s xuống 1.4s) bằng kỹ thuật code-splitting, ảo hóa danh sách giao dịch và tối ưu bundle Vite.',
+            'Phối hợp với Product Manager và Backend xây dựng cổng quản trị thanh toán doanh nghiệp phục vụ hơn 18.000 khách hàng hoạt động hàng tháng.',
+            'Hướng dẫn chuyên môn (mentor) cho 3 kỹ sư Junior/Middle và thiết lập quy trình review code kèm kiểm thử tự động.',
+          ],
+        },
+        {
+          id: 'exp-2',
+          company: 'KiotCloud Solutions',
+          position: 'Frontend Developer',
+          startDate: '07/2020',
+          endDate: '02/2023',
+          isCurrent: false,
+          location: 'TP. Hồ Chí Minh',
+          bullets: [
+            'Phát triển ứng dụng quản lý bán hàng đa kênh (POS Web App) hoạt động ổn định cả khi mất kết nối mạng nhờ đồng bộ IndexedDB.',
+            'Xây dựng hệ thống biểu đồ báo cáo doanh thu thời gian thực, giảm 40% lượng truy vấn lặp lại nhờ chiến lược caching thông minh.',
+            'Cải thiện tỷ lệ hoàn tất đơn hàng trên thiết bị di động tăng 22% sau khi tái thiết kế quy trình thanh toán.',
+          ],
+        },
+      ],
+      projects: [
+        {
+          id: 'proj-1',
+          name: 'Nền tảng Quản trị Dòng tiền FinBoard',
+          role: 'Frontend Tech Lead',
+          period: '06/2023 – 01/2024',
+          technologies: 'React 19, TypeScript, Tailwind CSS, TanStack Query, ECharts',
+          description:
+            'Hệ thống đối soát công nợ và dự báo dòng tiền tự động cho doanh nghiệp SME. Hỗ trợ xuất báo cáo tài chính đa định dạng và phân quyền chi tiết theo phòng ban.',
+          link: 'https://github.com/minhkhoi-fe/finboard-ui',
+        },
+        {
+          id: 'proj-2',
+          name: 'Hệ thống Đặt lịch & Quản lý Phòng khám MedSync',
+          role: 'Full-stack Developer',
+          period: '09/2021 – 05/2022',
+          technologies: 'React, Node.js, PostgreSQL, WebSocket',
+          description:
+            'Ứng dụng điều phối lịch hẹn bác sĩ và quản lý hồ sơ bệnh án điện tử cho chuỗi 6 phòng khám, giúp giảm 50% thời gian chờ tại quầy tiếp nhận.',
+          link: 'https://minhkhoi.dev/projects/medsync',
+        },
+      ],
+      education: [
+        {
+          id: 'edu-1',
+          school: 'Đại học Bách Khoa – ĐHQG TP. Hồ Chí Minh',
+          major: 'Kỹ sư Khoa học Máy tính',
+          period: '2015 – 2020',
+          gpaOrHonors: 'GPA: 3.56 / 4.0 · Học bổng Khuyến khích Học tập 4 học kỳ liên tiếp',
+        },
+      ],
+      skills: [
+        {
+          id: 'sg-1',
+          category: 'Chuyên môn Frontend',
+          items: [
+            { id: 'sk-1', name: 'TypeScript / ES2024', level: 5 },
+            { id: 'sk-2', name: 'React & Next.js', level: 5 },
+            { id: 'sk-3', name: 'Tailwind CSS & CSS Print', level: 5 },
+            { id: 'sk-4', name: 'HTML5 / Accessibility', level: 4 },
+          ],
+        },
+        {
+          id: 'sg-2',
+          category: 'Công cụ & Kiến trúc',
+          items: [
+            { id: 'sk-5', name: 'Vite / Webpack', level: 4 },
+            { id: 'sk-6', name: 'Playwright / Vitest', level: 4 },
+            { id: 'sk-7', name: 'REST API & GraphQL', level: 4 },
+            { id: 'sk-8', name: 'Figma & Design Systems', level: 4 },
+          ],
+        },
+        {
+          id: 'sg-3',
+          category: 'Kỹ năng mềm',
+          items: [
+            { id: 'sk-9', name: 'Dẫn dắt & Mentor đội nhóm', level: 4 },
+            { id: 'sk-10', name: 'Tư duy sản phẩm', level: 5 },
+          ],
+        },
+      ],
+      certificates: [
+        {
+          id: 'cert-1',
+          name: 'AWS Certified Cloud Practitioner',
+          issuer: 'Amazon Web Services',
+          year: '2024',
+        },
+        {
+          id: 'cert-2',
+          name: 'Giải Nhất Cuộc thi Thiết kế Sản phẩm Số VietHack',
+          issuer: 'Hội Tin học TP.HCM',
+          year: '2022',
+        },
+      ],
+      languages: [
+        {
+          id: 'lang-1',
+          name: 'Tiếng Việt',
+          proficiency: 'Bản ngữ',
+        },
+        {
+          id: 'lang-2',
+          name: 'Tiếng Anh',
+          proficiency: 'IELTS 7.5 (Đọc hiểu tài liệu & giao tiếp kỹ thuật thành thạo)',
+        },
+      ],
+      activities: [
+        {
+          id: 'act-1',
+          organization: 'Cộng đồng React Vietnam',
+          role: 'Diễn giả & Biên tập viên kỹ thuật',
+          period: '2022 – Hiện tại',
+          description:
+            'Chia sẻ 6 buổi workshop về tối ưu hiệu năng React và viết hơn 20 bài hướng dẫn chuyên sâu cho cộng đồng lập trình viên.',
+        },
+      ],
+      references: [
+        {
+          id: 'ref-1',
+          name: 'Trần Quốc Bảo',
+          titleAndCompany: 'Engineering Manager · Công ty Công nghệ FinCore Việt Nam',
+          contact: 'bao.tran@fincore.vn · 0908 112 349',
+        },
+      ],
+      visibility: {
+        summary: true,
+        experience: true,
+        projects: true,
+        education: true,
+        skills: true,
+        certificates: true,
+        languages: true,
+        activities: false,
+        references: false,
+      },
+    },
+  };
+}

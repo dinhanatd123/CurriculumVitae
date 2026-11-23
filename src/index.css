@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+}
+
+.cv-font-be-vietnam {
+  font-family: 'Be Vietnam Pro', sans-serif;
+}
+
+.cv-font-inter {
+  font-family: 'Inter', sans-serif;
+}
+
+.cv-font-merriweather {
+  font-family: 'Merriweather', Georgia, serif;
+}
+
+/* A4 Paper Dimensions on Screen */
+.cv-paper {
+  width: 210mm;
+  min-height: 297mm;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  color: #1e293b;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.cv-avoid-break {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.cv-heading-keep {
+  break-after: avoid;
+  page-break-after: avoid;
+}
+
+/* Custom subtle scrollbars for studio panels */
+.studio-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.studio-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.studio-scroll::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.45);
+  border-radius: 9999px;
+}
+.studio-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.65);
+}
+
+/* Strict A4 Vector Print Rules */
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  html,
+  body {
+    width: 210mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  #cv-print-portal {
+    display: block !important;
+    position: static !important;
+    width: 210mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .cv-paper {
+    width: 210mm !important;
+    min-height: 297mm !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+  }
+
+  .cv-avoid-break {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .cv-heading-keep {
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+  }
+}

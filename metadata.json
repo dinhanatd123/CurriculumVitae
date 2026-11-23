@@ -1,0 +1,8 @@
+{
+  "name": "CV Studio — Tạo CV Chuyên Nghiệp",
+  "description": "Ứng dụng tạo và xuất CV xin việc chuẩn A4 sắc nét, hỗ trợ đầy đủ tiếng Việt, 3 mẫu CV và lưu tự động.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
