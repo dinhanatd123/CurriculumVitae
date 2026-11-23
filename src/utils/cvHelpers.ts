@@ -187,6 +187,9 @@ const asNumber = (val: unknown, fallback: number, min: number, max: number): num
   return Math.min(max, Math.max(min, Math.round(val)));
 };
 
+const normalizeBundledAssetPath = (url: string): string =>
+  url.startsWith('/src/assets/') ? `.${url}` : url;
+
 /**
  * Validates and normalizes imported JSON or persisted localStorage payloads into a safe CvState.
  */
@@ -275,7 +278,7 @@ export function validateAndNormalizeCvState(
         linkedin: asString(p.linkedin, ''),
         github: asString(p.github, ''),
         portfolio: asString(p.portfolio, ''),
-        avatarUrl: asString(p.avatarUrl, ''),
+        avatarUrl: normalizeBundledAssetPath(asString(p.avatarUrl, '')),
         showAvatar: asBoolean(p.showAvatar, true),
         avatarShape,
       },
@@ -323,7 +326,7 @@ export function validateAndNormalizeCvState(
               technologies: asString(pr.technologies, ''),
               description: asString(pr.description, ''),
               link: asString(pr.link, ''),
-              imageUrl: asString(pr.imageUrl, ''),
+              imageUrl: normalizeBundledAssetPath(asString(pr.imageUrl, '')),
             };
           })
         : [],
