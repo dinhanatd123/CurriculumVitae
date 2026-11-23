@@ -1,9 +1,22 @@
 @import "tailwindcss";
 
 @layer base {
-  body {
-    font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+    overflow-x: clip;
   }
+
+  body {
+    font-family: 'Be Vietnam Pro', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: #f8fafc;
+    color: #0b1f3a;
+    overflow-x: clip;
+  }
+}
+
+.font-display {
+  font-family: 'Plus Jakarta Sans', 'Be Vietnam Pro', sans-serif;
 }
 
 .cv-font-be-vietnam {
@@ -16,6 +29,119 @@
 
 .cv-font-merriweather {
   font-family: 'Merriweather', Georgia, serif;
+}
+
+/* Expressive Outline Stroke Display Typography */
+.text-outline-blue {
+  color: transparent;
+  -webkit-text-stroke: 1.5px #0284c7;
+}
+
+@media (min-width: 768px) {
+  .text-outline-blue {
+    -webkit-text-stroke: 2px #0284c7;
+  }
+}
+
+/* Safe area helpers for iOS Safari / Android notches */
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Subtle static radial lighting backdrop (GPU-friendly, zero animated blur) */
+.portfolio-radial-bg {
+  background-color: #f8fafc;
+  background-image:
+    radial-gradient(circle at 14% 12%, rgba(14, 165, 233, 0.11) 0%, transparent 44%),
+    radial-gradient(circle at 86% 18%, rgba(16, 185, 129, 0.1) 0%, transparent 42%),
+    radial-gradient(circle at 50% 82%, rgba(2, 132, 199, 0.06) 0%, transparent 50%);
+}
+
+/* Orbiting ellipses on Splash Screen (GPU transform only) */
+@keyframes orbit-cw {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes orbit-ccw {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+.animate-orbit-slow {
+  animation: orbit-cw 28s linear infinite;
+  will-change: transform;
+}
+
+.animate-orbit-reverse {
+  animation: orbit-ccw 38s linear infinite;
+  will-change: transform;
+}
+
+/* Gentle pulse halo on Splash CTA */
+@keyframes soft-ring-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  70% {
+    transform: scale(1.12);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.12);
+    opacity: 0;
+  }
+}
+
+.animate-soft-ring {
+  animation: soft-ring-pulse 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+/* Infinite Marquee (GPU translate3d only, pauses on hover) */
+@keyframes marquee-scroll {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 34s linear infinite;
+  will-change: transform;
+}
+
+.marquee-container:hover .marquee-track,
+.marquee-container:focus-within .marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .animate-orbit-slow,
+  .animate-orbit-reverse,
+  .animate-soft-ring,
+  .marquee-track {
+    animation: none !important;
+  }
 }
 
 /* A4 Paper Dimensions on Screen */
@@ -39,7 +165,7 @@
   page-break-after: avoid;
 }
 
-/* Custom subtle scrollbars for studio panels */
+/* Subtle studio scrollbars */
 .studio-scroll::-webkit-scrollbar {
   width: 6px;
   height: 6px;

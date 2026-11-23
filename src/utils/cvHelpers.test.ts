@@ -1,8 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  buildMarqueeItems,
   buildPdfDocumentTitle,
   computeAutoZoomScale,
+  computeHeroActIndex,
   getContrastTextColor,
   moveItem,
   validateAndNormalizeCvState,
@@ -19,6 +21,24 @@ test('buildPdfDocumentTitle strips Vietnamese diacritics including đ/Đ', () =>
     'CV_Dang_Thi_Phuong_Thao_Ky_su_Phan_mem'
   );
   assert.equal(buildPdfDocumentTitle('', ''), 'CV_Chuyen_Nghiep');
+});
+
+test('computeHeroActIndex maps scroll progress accurately across 3 acts', () => {
+  assert.equal(computeHeroActIndex(0), 0);
+  assert.equal(computeHeroActIndex(0.33), 0);
+  assert.equal(computeHeroActIndex(0.35), 1);
+  assert.equal(computeHeroActIndex(0.67), 1);
+  assert.equal(computeHeroActIndex(0.68), 2);
+  assert.equal(computeHeroActIndex(1), 2);
+});
+
+test('buildMarqueeItems deduplicates skills, strengths, and certificates cleanly', () => {
+  const sample = createSampleCvState();
+  const items = buildMarqueeItems(sample.data);
+  assert.ok(items.includes('React & TypeScript'));
+  assert.ok(items.includes('AWS Certified Cloud Practitioner'));
+  const lower = items.map((i) => i.toLowerCase());
+  assert.equal(new Set(lower).size, lower.length);
 });
 
 test('moveItem reorders immutably and guards out-of-bounds indices', () => {
@@ -38,19 +58,19 @@ test('computeAutoZoomScale fits A4 cleanly across desktop and mobile containers'
 });
 
 test('getContrastTextColor returns accessible ink for dark and light custom colors', () => {
-  assert.equal(getContrastTextColor('#1E3A5F'), '#FFFFFF');
+  assert.equal(getContrastTextColor('#0B1F3A'), '#FFFFFF');
   assert.equal(getContrastTextColor('#0F5C5C'), '#FFFFFF');
   assert.equal(getContrastTextColor('#FDE047'), '#0F172A');
   assert.equal(getContrastTextColor('#E2E8F0'), '#0F172A');
 });
 
-test('validateAndNormalizeCvState validates valid payloads and rejects malformed JSON', () => {
+test('validateAndNormalizeCvState validates v1/v2 payloads and rejects malformed JSON', () => {
   const sample = createSampleCvState();
   const validResult = validateAndNormalizeCvState(sample);
   assert.equal(validResult.ok, true);
   if (validResult.ok) {
     assert.equal(validResult.state.data.personal.fullName, sample.data.personal.fullName);
-    assert.equal(validResult.state.settings.template, 'modern');
+    assert.equal(validResult.state.data.story.heroStats.length, 3);
   }
 
   const invalidNull = validateAndNormalizeCvState(null);
@@ -59,14 +79,16 @@ test('validateAndNormalizeCvState validates valid payloads and rejects malformed
   const missingPersonal = validateAndNormalizeCvState({ version: 1, data: {} });
   assert.equal(missingPersonal.ok, false);
 
-  const partial = validateAndNormalizeCvState({
+  // Backwards compatibility with payloads lacking `story`
+  const v1Payload = validateAndNormalizeCvState({
     data: { personal: { fullName: 'Trần An' } },
     settings: { template: 'invalid-template', primaryColor: 'not-a-hex' },
   });
-  assert.equal(partial.ok, true);
-  if (partial.ok) {
-    assert.equal(partial.state.data.personal.fullName, 'Trần An');
-    assert.equal(partial.state.settings.template, 'modern');
-    assert.equal(partial.state.settings.primaryColor, '#1E3A5F');
+  assert.equal(v1Payload.ok, true);
+  if (v1Payload.ok) {
+    assert.equal(v1Payload.state.data.personal.fullName, 'Trần An');
+    assert.equal(v1Payload.state.settings.template, 'modern');
+    assert.equal(v1Payload.state.settings.primaryColor, '#0B1F3A');
+    assert.ok(v1Payload.state.data.story.slogan.length > 0);
   }
 });

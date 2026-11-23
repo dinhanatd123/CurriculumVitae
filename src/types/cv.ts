@@ -1,4 +1,5 @@
 export type TemplateId = 'modern' | 'classic' | 'executive';
+export type PrintTemplateId = 'modern' | 'classic';
 export type FontFamilyId = 'be-vietnam' | 'inter' | 'merriweather';
 export type DensityId = 'compact' | 'standard' | 'spacious';
 export type CvLanguage = 'vi' | 'en';
@@ -20,6 +21,25 @@ export interface PersonalInfo {
   avatarShape: AvatarShape;
 }
 
+export interface HeroStatItem {
+  id: string;
+  value: string;
+  label: string;
+}
+
+export interface PortfolioStory {
+  statusBadge: string;
+  slogan: string;
+  strengths: string[];
+  heroStats: HeroStatItem[];
+  floatingBadges: [string, string];
+  act2Solid: string;
+  act2Outline: string;
+  act2Description: string;
+  act3Headline: string;
+  act3Subtext: string;
+}
+
 export interface ExperienceItem {
   id: string;
   company: string;
@@ -39,6 +59,7 @@ export interface ProjectItem {
   technologies: string;
   description: string;
   link: string;
+  imageUrl?: string;
 }
 
 export interface EducationItem {
@@ -112,6 +133,7 @@ export interface CvSettings {
 
 export interface CvData {
   personal: PersonalInfo;
+  story: PortfolioStory;
   summary: string;
   experience: ExperienceItem[];
   projects: ProjectItem[];
@@ -132,6 +154,7 @@ export interface CvState {
 
 export type EditorSectionKey =
   | 'personal'
+  | 'story'
   | 'summary'
   | 'experience'
   | 'projects'

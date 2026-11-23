@@ -7,6 +7,7 @@ import type {
 } from '../../types/cv';
 import { AccordionSection } from './AccordionSection';
 import { PersonalSection } from './PersonalSection';
+import { StorySection } from './StorySection';
 import { ExperienceSection } from './ExperienceSection';
 import { ProjectsSection, EducationSection } from './ProjectsEducationSection';
 import { SkillsSection, CertificatesSection } from './SkillsCertificatesSection';
@@ -22,6 +23,7 @@ interface EditorPanelProps {
 
 const SECTION_TABS: { key: EditorSectionKey; label: string }[] = [
   { key: 'personal', label: 'Cá nhân' },
+  { key: 'story', label: 'Hero & Intro' },
   { key: 'summary', label: 'Mục tiêu' },
   { key: 'experience', label: 'Kinh nghiệm' },
   { key: 'projects', label: 'Dự án' },
@@ -40,8 +42,9 @@ export function EditorPanel({
 }: EditorPanelProps) {
   const [openSections, setOpenSections] = useState<Record<EditorSectionKey, boolean>>({
     personal: true,
+    story: false,
     summary: false,
-    experience: true,
+    experience: false,
     projects: false,
     education: false,
     skills: false,
@@ -78,9 +81,9 @@ export function EditorPanel({
   ].filter(Boolean).length;
 
   return (
-    <aside
+    <div
       aria-label="Trình chỉnh sửa nội dung CV"
-      className="flex flex-col h-full bg-white border-r border-slate-200 overflow-hidden"
+      className="flex flex-col h-full bg-white overflow-hidden"
     >
       {/* Quick Section Jump Strip */}
       <div className="flex items-center gap-1 px-4 py-2.5 border-b border-slate-200 bg-slate-50/70 overflow-x-auto studio-scroll shrink-0">
@@ -91,7 +94,7 @@ export function EditorPanel({
               key={tab.key}
               type="button"
               onClick={() => jumpToSection(tab.key)}
-              className={`px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
+              className={`px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                 isOpen
                   ? 'bg-white text-slate-900 shadow-xs ring-1 ring-slate-200/80'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
@@ -107,7 +110,7 @@ export function EditorPanel({
       <div className="flex-1 overflow-y-auto studio-scroll">
         <AccordionSection
           id="personal"
-          title="1. Thông tin cá nhân"
+          title="1. Thông tin cá nhân & Ảnh đại diện"
           isOpen={openSections.personal}
           onToggleOpen={() => toggleOpen('personal')}
         >
@@ -119,8 +122,20 @@ export function EditorPanel({
         </AccordionSection>
 
         <AccordionSection
+          id="story"
+          title="2. Màn hình mở đầu & Hero 3 chặng"
+          isOpen={openSections.story}
+          onToggleOpen={() => toggleOpen('story')}
+        >
+          <StorySection
+            story={data.story}
+            onChange={(story) => onChangeData((prev) => ({ ...prev, story }))}
+          />
+        </AccordionSection>
+
+        <AccordionSection
           id="summary"
-          title="2. Tóm tắt / Mục tiêu nghề nghiệp"
+          title="3. Tóm tắt / Mục tiêu nghề nghiệp"
           isOpen={openSections.summary}
           onToggleOpen={() => toggleOpen('summary')}
           visible={data.visibility.summary}
@@ -128,7 +143,7 @@ export function EditorPanel({
         >
           <div>
             <label htmlFor="cv-summary-input" className="block text-xs font-medium text-slate-600 mb-1.5">
-              Đoạn giới thiệu ngắn gọn (3–4 dòng thể hiện thế mạnh & định hướng)
+              Đoạn giới thiệu ngắn gọn (3–4 dòng thể hiện thế mạnh &amp; định hướng)
             </label>
             <textarea
               id="cv-summary-input"
@@ -143,7 +158,7 @@ export function EditorPanel({
 
         <AccordionSection
           id="experience"
-          title="3. Kinh nghiệm làm việc"
+          title="4. Kinh nghiệm làm việc"
           subtitle={`${data.experience.length} mục`}
           isOpen={openSections.experience}
           onToggleOpen={() => toggleOpen('experience')}
@@ -158,7 +173,7 @@ export function EditorPanel({
 
         <AccordionSection
           id="projects"
-          title="4. Dự án tiêu biểu"
+          title="5. Dự án tiêu biểu"
           subtitle={`${data.projects.length} mục`}
           isOpen={openSections.projects}
           onToggleOpen={() => toggleOpen('projects')}
@@ -173,7 +188,7 @@ export function EditorPanel({
 
         <AccordionSection
           id="education"
-          title="5. Học vấn"
+          title="6. Học vấn"
           subtitle={`${data.education.length} mục`}
           isOpen={openSections.education}
           onToggleOpen={() => toggleOpen('education')}
@@ -188,7 +203,7 @@ export function EditorPanel({
 
         <AccordionSection
           id="skills"
-          title="6. Kỹ năng"
+          title="7. Kỹ năng & Công cụ"
           subtitle={`${data.skills.length} nhóm`}
           isOpen={openSections.skills}
           onToggleOpen={() => toggleOpen('skills')}
@@ -205,7 +220,7 @@ export function EditorPanel({
 
         <AccordionSection
           id="certificates"
-          title="7. Chứng chỉ & Giải thưởng"
+          title="8. Chứng chỉ & Giải thưởng"
           subtitle={`${data.certificates.length} mục`}
           isOpen={openSections.certificates}
           onToggleOpen={() => toggleOpen('certificates')}
@@ -220,7 +235,7 @@ export function EditorPanel({
 
         <AccordionSection
           id="extras"
-          title="8. Ngoại ngữ, Hoạt động & Tham chiếu"
+          title="9. Ngoại ngữ, Hoạt động & Tham chiếu"
           subtitle={`${activeExtrasCount}/3 đang hiện`}
           isOpen={openSections.extras}
           onToggleOpen={() => toggleOpen('extras')}
@@ -237,6 +252,6 @@ export function EditorPanel({
           />
         </AccordionSection>
       </div>
-    </aside>
+    </div>
   );
 }

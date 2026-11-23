@@ -1,4 +1,5 @@
 import type {
+  CvData,
   CvState,
   DensityId,
   FontFamilyId,
@@ -9,13 +10,14 @@ import type {
 } from '../types/cv';
 import { createSampleCvState } from '../data/sampleCv';
 
-export const STORAGE_KEY = 'cv_studio_state_v1';
+export const STORAGE_KEY = 'cv_studio_state_v2';
+export const INTRO_SESSION_KEY = 'cv_portfolio_intro_seen_v1';
 
 /**
  * Strips Vietnamese diacritics (including đ/Đ) and converts text into a safe filename token.
  */
 export function slugifyVietnameseFilenamePart(input: string): string {
-  const cleaned = input
+  return input
     .trim()
     .replace(/đ/g, 'd')
     .replace(/Đ/g, 'D')
@@ -25,8 +27,6 @@ export function slugifyVietnameseFilenamePart(input: string): string {
     .replace(/\s+/g, '_')
     .replace(/_+/g, '_')
     .replace(/^_|_$/g, '');
-
-  return cleaned;
 }
 
 /**
@@ -36,16 +36,51 @@ export function buildPdfDocumentTitle(fullName: string, jobTitle: string): strin
   const namePart = slugifyVietnameseFilenamePart(fullName);
   const rolePart = slugifyVietnameseFilenamePart(jobTitle);
 
-  if (namePart && rolePart) {
-    return `CV_${namePart}_${rolePart}`;
-  }
-  if (namePart) {
-    return `CV_${namePart}`;
-  }
-  if (rolePart) {
-    return `CV_${rolePart}`;
-  }
+  if (namePart && rolePart) return `CV_${namePart}_${rolePart}`;
+  if (namePart) return `CV_${namePart}`;
+  if (rolePart) return `CV_${rolePart}`;
   return 'CV_Chuyen_Nghiep';
+}
+
+/**
+ * Maps normalized hero scroll progress [0..1] to the active narrative act index (0, 1, or 2).
+ */
+export function computeHeroActIndex(progress: number): 0 | 1 | 2 {
+  if (Number.isNaN(progress) || progress < 0.34) return 0;
+  if (progress < 0.68) return 1;
+  return 2;
+}
+
+/**
+ * Builds a clean deduplicated list of marquee items from skills, technologies, certificates, and strengths.
+ */
+export function buildMarqueeItems(data: CvData): string[] {
+  const items: string[] = [];
+  const seen = new Set<string>();
+
+  const pushUnique = (raw: string) => {
+    const val = raw.trim();
+    if (!val) return;
+    const key = val.toLowerCase();
+    if (!seen.has(key)) {
+      seen.add(key);
+      items.push(val);
+    }
+  };
+
+  data.story.strengths.forEach(pushUnique);
+  data.skills.forEach((group) => group.items.forEach((sk) => pushUnique(sk.name)));
+  data.certificates.forEach((cert) => pushUnique(cert.name));
+  data.languages.forEach((lang) => {
+    if (lang.name.trim()) {
+      pushUnique(lang.proficiency ? `${lang.name} (${lang.proficiency.split('(')[0].trim()})` : lang.name);
+    }
+  });
+
+  if (items.length === 0) {
+    return ['React', 'TypeScript', 'UI/UX Engineering', 'Web Performance', 'Clean Architecture'];
+  }
+  return items;
 }
 
 /**
@@ -74,9 +109,7 @@ export function createId(prefix: string): string {
  * fits neatly inside the available preview viewport width.
  */
 export function computeAutoZoomScale(containerWidthPx: number, a4WidthPx = 794): number {
-  if (containerWidthPx <= 0 || a4WidthPx <= 0) {
-    return 1;
-  }
+  if (containerWidthPx <= 0 || a4WidthPx <= 0) return 1;
   const horizontalPadding = containerWidthPx < 500 ? 24 : 56;
   const available = Math.max(240, containerWidthPx - horizontalPadding);
   const rawScale = available / a4WidthPx;
@@ -89,9 +122,7 @@ export function computeAutoZoomScale(containerWidthPx: number, a4WidthPx = 794):
  */
 export function getContrastTextColor(hexColor: string): '#FFFFFF' | '#0F172A' {
   const match = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hexColor.trim());
-  if (!match) {
-    return '#FFFFFF';
-  }
+  if (!match) return '#FFFFFF';
   const r = parseInt(match[1], 16) / 255;
   const g = parseInt(match[2], 16) / 255;
   const b = parseInt(match[3], 16) / 255;
@@ -107,9 +138,7 @@ export function getContrastTextColor(hexColor: string): '#FFFFFF' | '#0F172A' {
  */
 export function hexToRgba(hexColor: string, alpha: number): string {
   const match = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hexColor.trim());
-  if (!match) {
-    return `rgba(30, 58, 95, ${alpha})`;
-  }
+  if (!match) return `rgba(11, 31, 58, ${alpha})`;
   const r = parseInt(match[1], 16);
   const g = parseInt(match[2], 16);
   const b = parseInt(match[3], 16);
@@ -128,6 +157,16 @@ export function normalizeHref(url: string): string {
   if (!trimmed) return '';
   if (/^https?:\/\//i.test(trimmed)) return trimmed;
   return `https://${trimmed}`;
+}
+
+/**
+ * Extracts crisp 2-letter initials for avatar fallback monograms.
+ */
+export function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return 'CV';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
 }
 
 const VALID_TEMPLATES: TemplateId[] = ['modern', 'classic', 'executive'];
@@ -164,12 +203,13 @@ export function validateAndNormalizeCvState(
   if (!rawData || typeof rawData !== 'object' || !rawData.personal || typeof rawData.personal !== 'object') {
     return {
       ok: false,
-      error: 'Cấu trúc tệp không khớp định dạng CV Studio (thiếu mục thông tin cá nhân).',
+      error: 'Cấu trúc tệp không khớp định dạng CV (thiếu mục thông tin cá nhân).',
     };
   }
 
   const defaults = createSampleCvState();
   const p = rawData.personal as Record<string, unknown>;
+  const rawStory = (rawData.story ?? {}) as Record<string, unknown>;
   const rawSettings = (record.settings ?? {}) as Record<string, unknown>;
   const rawVisibility = (rawData.visibility ?? {}) as Record<string, unknown>;
 
@@ -197,8 +237,25 @@ export function validateAndNormalizeCvState(
     ? (p.avatarShape as AvatarShape)
     : 'circle';
 
+  const normalizedHeroStats = Array.isArray(rawStory.heroStats) && rawStory.heroStats.length > 0
+    ? rawStory.heroStats.slice(0, 3).map((st, idx) => {
+        const s = (st ?? {}) as Record<string, unknown>;
+        return {
+          id: asString(s.id, `stat-${idx + 1}`),
+          value: asString(s.value, defaults.data.story.heroStats[idx]?.value ?? ''),
+          label: asString(s.label, defaults.data.story.heroStats[idx]?.label ?? ''),
+        };
+      })
+    : defaults.data.story.heroStats;
+
+  const rawFloating = Array.isArray(rawStory.floatingBadges) ? rawStory.floatingBadges : [];
+  const floatingBadges: [string, string] = [
+    asString(rawFloating[0], defaults.data.story.floatingBadges[0]),
+    asString(rawFloating[1], defaults.data.story.floatingBadges[1]),
+  ];
+
   const normalized: CvState = {
-    version: 1,
+    version: 2,
     settings: {
       template,
       primaryColor,
@@ -221,6 +278,21 @@ export function validateAndNormalizeCvState(
         avatarUrl: asString(p.avatarUrl, ''),
         showAvatar: asBoolean(p.showAvatar, true),
         avatarShape,
+      },
+      story: {
+        statusBadge: asString(rawStory.statusBadge, defaults.data.story.statusBadge),
+        slogan: asString(rawStory.slogan, defaults.data.story.slogan),
+        strengths:
+          Array.isArray(rawStory.strengths) && rawStory.strengths.length > 0
+            ? rawStory.strengths.filter((s): s is string => typeof s === 'string')
+            : defaults.data.story.strengths,
+        heroStats: normalizedHeroStats,
+        floatingBadges,
+        act2Solid: asString(rawStory.act2Solid, defaults.data.story.act2Solid),
+        act2Outline: asString(rawStory.act2Outline, defaults.data.story.act2Outline),
+        act2Description: asString(rawStory.act2Description, defaults.data.story.act2Description),
+        act3Headline: asString(rawStory.act3Headline, defaults.data.story.act3Headline),
+        act3Subtext: asString(rawStory.act3Subtext, defaults.data.story.act3Subtext),
       },
       summary: asString(rawData.summary, ''),
       experience: Array.isArray(rawData.experience)
@@ -251,6 +323,7 @@ export function validateAndNormalizeCvState(
               technologies: asString(pr.technologies, ''),
               description: asString(pr.description, ''),
               link: asString(pr.link, ''),
+              imageUrl: asString(pr.imageUrl, ''),
             };
           })
         : [],

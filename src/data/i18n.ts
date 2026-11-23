@@ -17,6 +17,46 @@ export interface CvSectionLabels {
   role: string;
 }
 
+export interface PortfolioUiLabels {
+  nav: {
+    intro: string;
+    experience: string;
+    projects: string;
+    skills: string;
+    education: string;
+    contact: string;
+  };
+  actions: {
+    editCv: string;
+    exportPdf: string;
+    downloadPdf: string;
+    viewProjects: string;
+    exploreProfile: string;
+    tapToStart: string;
+    scrollToDetails: string;
+    viewProjectDetail: string;
+  };
+  eyebrows: {
+    experience: string;
+    projects: string;
+    skills: string;
+    education: string;
+    contact: string;
+  };
+  headings: {
+    experienceSolid: string;
+    experienceOutline: string;
+    projectsSolid: string;
+    projectsOutline: string;
+    skillsSolid: string;
+    skillsOutline: string;
+    educationSolid: string;
+    educationOutline: string;
+    contactTitle: string;
+    contactSubtitle: string;
+  };
+}
+
 export const CV_LABELS: Record<CvLanguage, CvSectionLabels> = {
   vi: {
     contact: 'Thông tin liên hệ',
@@ -52,11 +92,94 @@ export const CV_LABELS: Record<CvLanguage, CvSectionLabels> = {
   },
 };
 
+export const PORTFOLIO_UI_LABELS: Record<CvLanguage, PortfolioUiLabels> = {
+  vi: {
+    nav: {
+      intro: 'Giới thiệu',
+      experience: 'Kinh nghiệm',
+      projects: 'Dự án',
+      skills: 'Kỹ năng',
+      education: 'Học vấn',
+      contact: 'Liên hệ',
+    },
+    actions: {
+      editCv: 'Chỉnh sửa CV',
+      exportPdf: 'Xuất PDF',
+      downloadPdf: 'Tải CV PDF',
+      viewProjects: 'Xem dự án',
+      exploreProfile: 'Khám phá hồ sơ',
+      tapToStart: 'CHẠM ĐỂ BẮT ĐẦU',
+      scrollToDetails: 'Xem chi tiết hồ sơ',
+      viewProjectDetail: 'Xem chi tiết',
+    },
+    eyebrows: {
+      experience: '01 / KINH NGHIỆM',
+      projects: '02 / DỰ ÁN TIÊU BIỂU',
+      skills: '03 / KỸ NĂNG',
+      education: '04 / HỌC VẤN & CHỨNG CHỈ',
+      contact: 'KẾT NỐI & HỢP TÁC',
+    },
+    headings: {
+      experienceSolid: 'Hành trình',
+      experienceOutline: 'Nghề nghiệp',
+      projectsSolid: 'Sản phẩm',
+      projectsOutline: 'Đã triển khai',
+      skillsSolid: 'Năng lực',
+      skillsOutline: '& Công cụ',
+      educationSolid: 'Nền tảng',
+      educationOutline: '& Chứng nhận',
+      contactTitle: 'Sẵn sàng đồng hành cùng đội ngũ của bạn',
+      contactSubtitle:
+        'Kết nối trực tiếp qua các kênh bên dưới hoặc tải ngay bản CV định dạng A4 chuẩn ATS để trao đổi về cơ hội hợp tác.',
+    },
+  },
+  en: {
+    nav: {
+      intro: 'About',
+      experience: 'Experience',
+      projects: 'Projects',
+      skills: 'Skills',
+      education: 'Education',
+      contact: 'Contact',
+    },
+    actions: {
+      editCv: 'Edit CV',
+      exportPdf: 'Export PDF',
+      downloadPdf: 'Download PDF',
+      viewProjects: 'View Projects',
+      exploreProfile: 'Explore Portfolio',
+      tapToStart: 'TAP TO BEGIN',
+      scrollToDetails: 'Explore Full Profile',
+      viewProjectDetail: 'View Details',
+    },
+    eyebrows: {
+      experience: '01 / WORK EXPERIENCE',
+      projects: '02 / FEATURED PROJECTS',
+      skills: '03 / SKILLS & TOOLS',
+      education: '04 / EDUCATION & CERTIFICATIONS',
+      contact: 'LET’S COLLABORATE',
+    },
+    headings: {
+      experienceSolid: 'Career',
+      experienceOutline: 'Trajectory',
+      projectsSolid: 'Selected',
+      projectsOutline: 'Case Studies',
+      skillsSolid: 'Core',
+      skillsOutline: 'Capabilities',
+      educationSolid: 'Academic',
+      educationOutline: '& Credentials',
+      contactTitle: 'Ready to build high-impact products together',
+      contactSubtitle:
+        'Reach out directly through any channel below or download my crisp ATS-ready A4 PDF resume.',
+    },
+  },
+};
+
 export const PRESET_COLORS = [
-  { name: 'Xanh Navy', value: '#1E3A5F' },
+  { name: 'Xanh Navy', value: '#0B1F3A' },
   { name: 'Xanh Ngọc Đậm', value: '#0F5C5C' },
+  { name: 'Xanh Dương Đậm', value: '#0369A1' },
   { name: 'Xám Than', value: '#27303F' },
-  { name: 'Xanh Cobalt', value: '#1D4ED8' },
-  { name: 'Đỏ Đô', value: '#881337' },
   { name: 'Rêu Trầm', value: '#2F4F3E' },
+  { name: 'Đỏ Đô', value: '#881337' },
 ] as const;

@@ -1,16 +1,24 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import type { CvData, CvSettings, CvState } from './types/cv';
+import { AnimatePresence, MotionConfig } from 'motion/react';
+import type { CvData, CvSettings, CvState, ProjectItem } from './types/cv';
 import { createSampleCvState } from './data/sampleCv';
+import { CV_LABELS, PORTFOLIO_UI_LABELS } from './data/i18n';
 import {
+  INTRO_SESSION_KEY,
   STORAGE_KEY,
   buildPdfDocumentTitle,
   validateAndNormalizeCvState,
 } from './utils/cvHelpers';
-import { TopToolbar } from './components/TopToolbar';
-import { EditorPanel } from './components/editor/EditorPanel';
-import { LivePreviewStage } from './components/preview/LivePreviewStage';
+import { SplashScreen } from './components/portfolio/SplashScreen';
+import { StickyHeader } from './components/portfolio/StickyHeader';
+import { ScrollHero } from './components/portfolio/ScrollHero';
+import { MarqueeBanner } from './components/portfolio/MarqueeBanner';
+import { PortfolioSections } from './components/portfolio/PortfolioSections';
+import { ProjectModal } from './components/portfolio/ProjectModal';
+import { ContactBannerFooter } from './components/portfolio/ContactBannerFooter';
+import { EditDrawer } from './components/EditDrawer';
+import { PrintPreviewModal } from './components/PrintPreviewModal';
 import { CvDocument } from './components/preview/CvDocument';
-import { PrintGuideModal } from './components/PrintGuideModal';
 
 interface ToastState {
   message: string;
@@ -19,7 +27,7 @@ interface ToastState {
 
 function loadInitialState(): CvState {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(STORAGE_KEY) ?? window.localStorage.getItem('cv_studio_state_v1');
     if (!raw) return createSampleCvState();
     const parsed = JSON.parse(raw);
     const validated = validateAndNormalizeCvState(parsed);
@@ -29,10 +37,22 @@ function loadInitialState(): CvState {
   }
 }
 
+function shouldShowSplashInitially(): boolean {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('autostart') === '1') return false;
+    return window.sessionStorage.getItem(INTRO_SESSION_KEY) !== '1';
+  } catch {
+    return true;
+  }
+}
+
 export default function App() {
   const [cvState, setCvState] = useState<CvState>(() => loadInitialState());
-  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
-  const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [showSplash, setShowSplash] = useState<boolean>(() => shouldShowSplashInitially());
+  const [editDrawerOpen, setEditDrawerOpen] = useState(false);
+  const [printPreviewOpen, setPrintPreviewOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<ProjectItem | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
   const toastTimerRef = useRef<number | null>(null);
 
@@ -50,7 +70,7 @@ export default function App() {
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cvState));
     } catch {
-      // Ignore storage quota errors silently to avoid interrupting editing
+      // Ignore storage quota errors
     }
   }, [cvState]);
 
@@ -60,6 +80,25 @@ export default function App() {
         window.clearTimeout(toastTimerRef.current);
       }
     };
+  }, []);
+
+  const handleDismissSplash = useCallback(() => {
+    setShowSplash(false);
+    try {
+      window.sessionStorage.setItem(INTRO_SESSION_KEY, '1');
+    } catch {
+      // Ignore storage errors
+    }
+  }, []);
+
+  const handleReplaySplash = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+    setShowSplash(true);
+    try {
+      window.sessionStorage.removeItem(INTRO_SESSION_KEY);
+    } catch {
+      // Ignore storage errors
+    }
   }, []);
 
   const handleChangeData = useCallback((updater: (prev: CvData) => CvData) => {
@@ -83,10 +122,6 @@ export default function App() {
       ...sample,
       settings: {
         ...sample.settings,
-        template: previous.settings.template,
-        primaryColor: previous.settings.primaryColor,
-        fontFamily: previous.settings.fontFamily,
-        density: previous.settings.density,
         language: previous.settings.language,
       },
     });
@@ -141,7 +176,7 @@ export default function App() {
   );
 
   const handleConfirmPrint = useCallback(() => {
-    setPrintModalOpen(false);
+    setPrintPreviewOpen(false);
     const originalTitle = document.title;
     document.title = pdfTitle;
 
@@ -161,66 +196,107 @@ export default function App() {
     });
   }, [pdfTitle]);
 
+  const cvLabels = CV_LABELS[cvState.settings.language];
+  const uiLabels = PORTFOLIO_UI_LABELS[cvState.settings.language];
+
+  // Ensure print template stays on Modern 2-col or Classic 1-col ATS
+  const printSettings: CvSettings = {
+    ...cvState.settings,
+    template: cvState.settings.template === 'classic' ? 'classic' : 'modern',
+  };
+
   return (
-    <>
-      {/* Main Interactive Studio Shell (Hidden when printing) */}
-      <div className="no-print h-dvh flex flex-col overflow-hidden bg-[#F1F4F8]">
-        <TopToolbar
-          settings={cvState.settings}
-          onChangeSettings={handleChangeSettings}
-          onLoadSample={handleLoadSample}
-          onExportJson={handleExportJson}
-          onImportJson={handleImportJson}
-          onOpenPrintModal={() => setPrintModalOpen(true)}
-          mobileView={mobileView}
-          onChangeMobileView={setMobileView}
+    <MotionConfig reducedMotion="user">
+      {/* Full-Screen Intro Splash Screen */}
+      <AnimatePresence>
+        {showSplash && (
+          <SplashScreen
+            personal={cvState.data.personal}
+            story={cvState.data.story}
+            uiLabels={uiLabels}
+            onEnter={handleDismissSplash}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Main Interactive Scroll-Telling CV Portfolio (Hidden completely in @media print) */}
+      <div className="no-print min-h-[100dvh] flex flex-col bg-[#F8FAFC]">
+        <StickyHeader
+          candidateName={cvState.data.personal.fullName}
+          uiLabels={uiLabels}
+          onOpenEditor={() => setEditDrawerOpen(true)}
+          onOpenPrintPreview={() => setPrintPreviewOpen(true)}
         />
 
-        {/* Responsive Split-Screen Workspace: 45% Editor / 55% Live Preview */}
-        <div className="flex-1 min-h-0 flex flex-col lg:flex-row overflow-hidden">
-          <div
-            className={`w-full lg:w-[45%] h-full min-h-0 ${
-              mobileView === 'editor' ? 'block' : 'hidden lg:block'
-            }`}
-          >
-            <EditorPanel
-              data={cvState.data}
-              settings={cvState.settings}
-              onChangeData={handleChangeData}
-              onChangeSettings={handleChangeSettings}
-              onNotify={(msg) => showToast(msg)}
-            />
-          </div>
+        <main className="flex-1">
+          <ScrollHero
+            personal={cvState.data.personal}
+            story={cvState.data.story}
+            uiLabels={uiLabels}
+            onOpenPrintPreview={() => setPrintPreviewOpen(true)}
+          />
 
-          <div
-            className={`w-full lg:w-[55%] h-full min-h-0 ${
-              mobileView === 'preview' ? 'block' : 'hidden lg:block'
-            }`}
-          >
-            <LivePreviewStage data={cvState.data} settings={cvState.settings} />
-          </div>
-        </div>
+          <MarqueeBanner data={cvState.data} />
+
+          <PortfolioSections
+            data={cvState.data}
+            settings={cvState.settings}
+            cvLabels={cvLabels}
+            uiLabels={uiLabels}
+            onSelectProject={setSelectedProject}
+          />
+
+          <ContactBannerFooter
+            personal={cvState.data.personal}
+            uiLabels={uiLabels}
+            onOpenPrintPreview={() => setPrintPreviewOpen(true)}
+            onReplaySplash={handleReplaySplash}
+          />
+        </main>
       </div>
 
-      {/* Dedicated Unscaled A4 Print Root (Visible only in @media print) */}
-      <div id="cv-print-portal" className="hidden print:block">
-        <CvDocument data={cvState.data} settings={cvState.settings} />
-      </div>
+      {/* Interactive Modals & Live Editor Drawer (All hidden in @media print) */}
+      <ProjectModal
+        project={selectedProject}
+        labels={cvLabels}
+        onClose={() => setSelectedProject(null)}
+      />
 
-      {/* Print Guide Modal */}
-      <PrintGuideModal
-        isOpen={printModalOpen}
+      <EditDrawer
+        isOpen={editDrawerOpen}
+        data={cvState.data}
+        settings={cvState.settings}
+        onClose={() => setEditDrawerOpen(false)}
+        onChangeData={handleChangeData}
+        onChangeSettings={handleChangeSettings}
+        onLoadSample={handleLoadSample}
+        onExportJson={handleExportJson}
+        onImportJson={handleImportJson}
+        onOpenPrintPreview={() => setPrintPreviewOpen(true)}
+        onNotify={(msg) => showToast(msg)}
+      />
+
+      <PrintPreviewModal
+        isOpen={printPreviewOpen}
+        data={cvState.data}
+        settings={printSettings}
         pdfTitle={pdfTitle}
-        onClose={() => setPrintModalOpen(false)}
+        onChangeSettings={handleChangeSettings}
+        onClose={() => setPrintPreviewOpen(false)}
         onConfirmPrint={handleConfirmPrint}
       />
+
+      {/* Dedicated Unscaled Flat A4 Print Root (Visible ONLY in @media print) */}
+      <div id="cv-print-portal" className="hidden print:block">
+        <CvDocument data={cvState.data} settings={printSettings} />
+      </div>
 
       {/* Non-Intrusive Feedback Toast with Optional Undo */}
       {toast && (
         <div
           role="status"
           aria-live="polite"
-          className="no-print fixed bottom-5 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-medium shadow-lg"
+          className="no-print fixed bottom-5 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-3 px-4 py-2.5 rounded-full bg-[#0B1F3A] text-white text-xs font-medium shadow-xl"
         >
           <span>{toast.message}</span>
           {toast.undoState && (
@@ -232,13 +308,13 @@ export default function App() {
                   setToast(null);
                 }
               }}
-              className="px-2 py-0.5 rounded bg-white/15 hover:bg-white/25 text-white font-semibold transition-colors whitespace-nowrap"
+              className="px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 text-white font-semibold transition-colors whitespace-nowrap cursor-pointer"
             >
               Hoàn tác
             </button>
           )}
         </div>
       )}
-    </>
+    </MotionConfig>
   );
 }
