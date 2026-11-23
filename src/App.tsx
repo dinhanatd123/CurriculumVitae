@@ -1,8 +1,9 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { AnimatePresence, MotionConfig } from 'motion/react';
-import type { CvData, CvSettings, CvState, ProjectItem } from './types/cv';
+import type { CvData, CvSettings, CvState, ProjectItem, WebThemeId } from './types/cv';
 import { createSampleCvState } from './data/sampleCv';
 import { CV_LABELS, PORTFOLIO_UI_LABELS } from './data/i18n';
+import { getWebThemePreset } from './data/themes';
 import {
   INTRO_SESSION_KEY,
   STORAGE_KEY,
@@ -75,6 +76,10 @@ export default function App() {
   }, [cvState]);
 
   useEffect(() => {
+    document.documentElement.setAttribute('data-web-theme', cvState.settings.webTheme);
+  }, [cvState.settings.webTheme]);
+
+  useEffect(() => {
     return () => {
       if (toastTimerRef.current) {
         window.clearTimeout(toastTimerRef.current);
@@ -115,6 +120,22 @@ export default function App() {
     }));
   }, []);
 
+  const handleSelectTheme = useCallback(
+    (themeId: WebThemeId) => {
+      const preset = getWebThemePreset(themeId);
+      setCvState((prev) => ({
+        ...prev,
+        settings: {
+          ...prev.settings,
+          webTheme: themeId,
+          primaryColor: preset.pdfPrimaryColor,
+        },
+      }));
+      showToast(`Đã đổi màu chủ đạo: ${preset.nameVi}`);
+    },
+    [showToast]
+  );
+
   const handleLoadSample = useCallback(() => {
     const previous = cvState;
     const sample = createSampleCvState();
@@ -123,6 +144,8 @@ export default function App() {
       settings: {
         ...sample.settings,
         language: previous.settings.language,
+        webTheme: previous.settings.webTheme,
+        primaryColor: previous.settings.primaryColor,
       },
     });
     showToast('Đã nạp bộ dữ liệu mẫu tiếng Việt.', previous);
@@ -214,16 +237,24 @@ export default function App() {
             personal={cvState.data.personal}
             story={cvState.data.story}
             uiLabels={uiLabels}
+            activeTheme={cvState.settings.webTheme}
+            onSelectTheme={handleSelectTheme}
             onEnter={handleDismissSplash}
           />
         )}
       </AnimatePresence>
 
       {/* Main Interactive Scroll-Telling CV Portfolio (Hidden completely in @media print) */}
-      <div className="no-print min-h-[100dvh] flex flex-col bg-[#F8FAFC]">
+      <div
+        data-web-theme={cvState.settings.webTheme}
+        className="no-print min-h-[100dvh] flex flex-col bg-[#F8FAFC]"
+      >
         <StickyHeader
           candidateName={cvState.data.personal.fullName}
           uiLabels={uiLabels}
+          language={cvState.settings.language}
+          activeTheme={cvState.settings.webTheme}
+          onSelectTheme={handleSelectTheme}
           onOpenEditor={() => setEditDrawerOpen(true)}
           onOpenPrintPreview={() => setPrintPreviewOpen(true)}
         />
@@ -269,6 +300,7 @@ export default function App() {
         onClose={() => setEditDrawerOpen(false)}
         onChangeData={handleChangeData}
         onChangeSettings={handleChangeSettings}
+        onSelectTheme={handleSelectTheme}
         onLoadSample={handleLoadSample}
         onExportJson={handleExportJson}
         onImportJson={handleImportJson}
@@ -296,7 +328,7 @@ export default function App() {
         <div
           role="status"
           aria-live="polite"
-          className="no-print fixed bottom-5 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-3 px-4 py-2.5 rounded-full bg-[#0B1F3A] text-white text-xs font-medium shadow-xl"
+          className="no-print fixed bottom-5 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-3 px-4 py-2.5 rounded-full theme-ink-bg text-white text-xs font-medium shadow-xl"
         >
           <span>{toast.message}</span>
           {toast.undoState && (

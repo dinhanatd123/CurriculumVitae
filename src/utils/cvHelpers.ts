@@ -7,8 +7,10 @@ import type {
   CvLanguage,
   AvatarShape,
   SkillDisplayMode,
+  WebThemeId,
 } from '../types/cv';
 import { createSampleCvState } from '../data/sampleCv';
+import { VALID_WEB_THEMES } from '../data/themes';
 
 export const STORAGE_KEY = 'cv_studio_state_v2';
 export const INTRO_SESSION_KEY = 'cv_portfolio_intro_seen_v1';
@@ -235,6 +237,9 @@ export function validateAndNormalizeCvState(
     typeof rawSettings.primaryColor === 'string' && /^#[0-9a-fA-F]{6}$/.test(rawSettings.primaryColor)
       ? rawSettings.primaryColor
       : defaults.settings.primaryColor;
+  const webTheme = VALID_WEB_THEMES.includes(rawSettings.webTheme as WebThemeId)
+    ? (rawSettings.webTheme as WebThemeId)
+    : defaults.settings.webTheme;
 
   const avatarShape = VALID_AVATAR_SHAPES.includes(p.avatarShape as AvatarShape)
     ? (p.avatarShape as AvatarShape)
@@ -262,6 +267,7 @@ export function validateAndNormalizeCvState(
     settings: {
       template,
       primaryColor,
+      webTheme,
       fontFamily,
       density,
       language,

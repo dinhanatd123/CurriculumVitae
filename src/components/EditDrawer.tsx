@@ -1,7 +1,8 @@
 import { useEffect, useRef, type ChangeEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, RotateCcw, Download, Upload, FileDown } from 'lucide-react';
-import type { CvData, CvLanguage, CvSettings } from '../types/cv';
+import { X, RotateCcw, Download, Upload, FileDown, Palette, Check } from 'lucide-react';
+import type { CvData, CvLanguage, CvSettings, WebThemeId } from '../types/cv';
+import { WEB_THEMES } from '../data/themes';
 import { EditorPanel } from './editor/EditorPanel';
 
 interface EditDrawerProps {
@@ -11,6 +12,7 @@ interface EditDrawerProps {
   onClose: () => void;
   onChangeData: (updater: (prev: CvData) => CvData) => void;
   onChangeSettings: (patch: Partial<CvSettings>) => void;
+  onSelectTheme: (themeId: WebThemeId) => void;
   onLoadSample: () => void;
   onExportJson: () => void;
   onImportJson: (file: File) => void;
@@ -25,6 +27,7 @@ export function EditDrawer({
   onClose,
   onChangeData,
   onChangeSettings,
+  onSelectTheme,
   onLoadSample,
   onExportJson,
   onImportJson,
@@ -156,6 +159,39 @@ export function EditDrawer({
               </div>
             </div>
 
+            {/* Youthful Web Color Theme Selector Bar */}
+            <div className="px-5 py-2.5 bg-white border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 shrink-0">
+              <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600">
+                <Palette className="w-3.5 h-3.5 text-theme-accent" aria-hidden="true" />
+                <span>Màu chủ đạo web:</span>
+              </div>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {WEB_THEMES.map((theme) => {
+                  const isSelected = settings.webTheme === theme.id;
+                  return (
+                    <button
+                      key={theme.id}
+                      type="button"
+                      onClick={() => onSelectTheme(theme.id)}
+                      title={theme.nameVi}
+                      aria-label={`Chọn màu ${theme.nameVi}`}
+                      aria-pressed={isSelected}
+                      className={`w-6 h-6 rounded-full flex items-center justify-center text-white transition-transform cursor-pointer ${
+                        isSelected
+                          ? 'scale-110 ring-2 ring-offset-2 ring-slate-800'
+                          : 'hover:scale-105 opacity-85 hover:opacity-100'
+                      }`}
+                      style={{
+                        backgroundImage: `linear-gradient(135deg, ${theme.swatchFrom}, ${theme.swatchTo})`,
+                      }}
+                    >
+                      {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Full Modular CV Editor */}
             <div className="flex-1 min-h-0 overflow-hidden">
               <EditorPanel
@@ -175,7 +211,7 @@ export function EditDrawer({
                   onClose();
                   onOpenPrintPreview();
                 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#0284C7] to-[#10B981] text-white text-xs sm:text-sm font-semibold hover:opacity-95 transition-opacity whitespace-nowrap cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full theme-gradient-bg text-white text-xs sm:text-sm font-semibold hover:opacity-95 transition-opacity whitespace-nowrap cursor-pointer"
               >
                 <FileDown className="w-4 h-4" aria-hidden="true" />
                 <span>Xem trước &amp; Xuất PDF A4</span>
@@ -184,7 +220,7 @@ export function EditDrawer({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-5 py-2 rounded-full bg-[#0B1F3A] text-white text-xs sm:text-sm font-semibold hover:bg-slate-800 transition-colors cursor-pointer"
+                className="px-5 py-2 rounded-full theme-ink-bg text-white text-xs sm:text-sm font-semibold hover:opacity-90 transition-opacity cursor-pointer"
               >
                 Hoàn tất
               </button>

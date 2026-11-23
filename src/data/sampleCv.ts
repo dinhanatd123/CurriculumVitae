@@ -13,6 +13,7 @@ export function createSampleCvState(): CvState {
     settings: {
       template: 'modern',
       primaryColor: '#0B1F3A',
+      webTheme: 'ocean-mint',
       fontFamily: 'be-vietnam',
       density: 'standard',
       language: 'vi',

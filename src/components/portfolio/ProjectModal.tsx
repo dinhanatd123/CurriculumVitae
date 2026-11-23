@@ -57,7 +57,7 @@ export function ProjectModal({ project, labels, onClose }: ProjectModalProps) {
             className="w-full max-w-2xl max-h-[90dvh] overflow-y-auto studio-scroll rounded-3xl bg-white border border-slate-200 shadow-2xl"
           >
             {/* Visual Header */}
-            <div className="relative aspect-[16/9] w-full overflow-hidden bg-gradient-to-br from-[#0B1F3A] via-[#0369A1] to-[#0D9488]">
+            <div className="relative aspect-[16/9] w-full overflow-hidden theme-banner-bg">
               {project.imageUrl && !imgError ? (
                 <img
                   src={project.imageUrl}
@@ -88,14 +88,14 @@ export function ProjectModal({ project, labels, onClose }: ProjectModalProps) {
               <div>
                 <h2
                   id="project-modal-title"
-                  className="font-display text-2xl sm:text-3xl font-extrabold text-[#0B1F3A] tracking-tight"
+                  className="font-display text-2xl sm:text-3xl font-extrabold text-theme-ink tracking-tight"
                 >
                   {project.name}
                 </h2>
 
                 <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs sm:text-sm text-slate-600">
                   {project.role && (
-                    <span className="inline-flex items-center gap-1.5 font-semibold text-[#0284C7]">
+                    <span className="inline-flex items-center gap-1.5 font-semibold text-theme-accent">
                       <UserCheck className="w-4 h-4" aria-hidden="true" />
                       <span>{project.role}</span>
                     </span>
@@ -124,7 +124,7 @@ export function ProjectModal({ project, labels, onClose }: ProjectModalProps) {
                     {techTokens.map((tech, idx) => (
                       <span
                         key={idx}
-                        className="px-3 py-1 rounded-full bg-sky-50 border border-sky-200/80 text-xs font-semibold text-[#0B1F3A]"
+                        className="px-3 py-1 rounded-full bg-theme-soft border border-theme-soft text-xs font-semibold text-theme-ink"
                       >
                         {tech}
                       </span>
@@ -139,7 +139,7 @@ export function ProjectModal({ project, labels, onClose }: ProjectModalProps) {
                     href={normalizeHref(project.link)}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-[#0284C7] to-[#10B981] text-white text-sm font-semibold hover:opacity-95 transition-opacity break-all"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full theme-gradient-bg text-white text-sm font-semibold hover:opacity-95 transition-opacity break-all"
                   >
                     <span>{formatDisplayUrl(project.link)}</span>
                     <ExternalLink className="w-4 h-4 shrink-0" aria-hidden="true" />

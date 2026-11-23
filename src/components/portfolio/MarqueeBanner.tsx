@@ -11,7 +11,7 @@ export function MarqueeBanner({ data }: MarqueeBannerProps) {
   return (
     <div
       aria-label="Kỹ năng và công nghệ nổi bật"
-      className="no-print marquee-container relative w-full overflow-hidden bg-[#0B1F3A] py-4 sm:py-5 border-y border-white/10 select-none"
+      className="no-print marquee-container relative w-full overflow-hidden theme-ink-bg py-4 sm:py-5 border-y border-white/10 select-none"
     >
       <div className="marquee-track flex items-center">
         {[0, 1].map((dupIdx) => (
@@ -27,7 +27,8 @@ export function MarqueeBanner({ data }: MarqueeBannerProps) {
                 </span>
                 <span
                   aria-hidden="true"
-                  className="text-sky-400/70 text-xs font-bold select-none"
+                  className="text-xs font-bold select-none opacity-85"
+                  style={{ color: 'var(--theme-accent-2)' }}
                 >
                   ✦
                 </span>

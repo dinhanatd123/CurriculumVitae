@@ -5,6 +5,14 @@ export type DensityId = 'compact' | 'standard' | 'spacious';
 export type CvLanguage = 'vi' | 'en';
 export type AvatarShape = 'circle' | 'rounded';
 export type SkillDisplayMode = 'tags' | 'bars';
+export type WebThemeId =
+  | 'ocean-mint'
+  | 'sunset-coral'
+  | 'electric-violet'
+  | 'berry-pop'
+  | 'matcha-lime'
+  | 'royal-amber'
+  | 'sakura-sky';
 
 export interface PersonalInfo {
   fullName: string;
@@ -125,6 +133,7 @@ export interface SectionVisibility {
 export interface CvSettings {
   template: TemplateId;
   primaryColor: string;
+  webTheme: WebThemeId;
   fontFamily: FontFamilyId;
   density: DensityId;
   language: CvLanguage;
